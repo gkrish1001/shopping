@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Voice-enabled Smart Shopping Assistant — Final</title>
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="pp-nav">
+      <div class="pp-nav-left">
+        <div class="pp-logo">
+          <img src="https://www.purchasingpower.com/assets/logo/ppc-logo.svg" alt="Purchasing Power" style="height:40px;">
+        </div>
+        <nav class="pp-links" aria-label="Primary">
+          <button class="link-btn" data-nav="home">Shop All</button>
+          <button class="link-btn" data-nav="home">Computers & Electronics</button>
+          <button class="link-btn" data-nav="home">Sales & Offers</button>
+          <button class="link-btn" data-nav="home">New Arrivals</button>
+          <button class="link-btn" data-nav="home">Best Sellers</button>
+          <button class="link-btn" data-nav="home">Brands</button>
+          <button class="link-btn" data-nav="home">Clearance</button>
+        </nav>
+      </div>
+
+      <div class="pp-nav-center">
+        <!-- Compact search bar -->
+        <div class="searchbar">
+          <input id="globalSearch" type="text" placeholder='Try: "show macbook air under $1000" or "open macbook air"' />
+          <button id="searchBtn" class="btn search-btn">Search</button>
+        </div>
+      </div>
+
+      <div class="pp-nav-right">
+        <div class="user">
+          <span class="hello">Hi, Team Procode</span>
+          <span class="balance">Spending Limit: <strong id="balanceValue">$735</strong></span>
+        </div>
+
+        <!-- Voice button with Povi icon -->
+        <button id="voiceToggle" class="btn mic">
+          <img id="voiceIcon" alt="Povi" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23ff5f6d'/><stop offset='1' stop-color='%23ffc371'/></linearGradient></defs><rect rx='6' width='24' height='24' fill='url(%23g)'/><circle cx='12' cy='12' r='6' fill='%23ffffff'/></svg>" />
+          <span class="voice-label">Voice Off</span>
+        </button>
+
+        <button class="btn cart-btn" data-nav="cart" aria-label="Open cart">
+          Cart 🛒 <span id="cartBadge" class="cart-badge hidden">0</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Assistant bar -->
+    <div id="assistantBar" class="assistant" aria-live="polite"></div>
+    <nav id="breadcrumb" class="breadcrumb"></nav>
+
+    <!-- Main -->
+    <main class="container">
+      <!-- HOME (same content) -->
+      <section id="page-home" class="page">
+        <div class="sys-alert"><span>You've got an order waiting on documents. Upload today.</span></div>
+        <div class="promo-strip"><span>CYBER WEEK STARTS IN:</span>
+          <div class="promo-counts">
+            <div class="count"><strong>02</strong><small>days</small></div>
+            <div class="count"><strong>47</strong><small>hours</small></div>
+            <div class="count"><strong>44</strong><small>mins</small></div>
+          </div>
+        </div>
+
+        <div class="home-hero pp-hero">
+          <div class="pp-hero-left">
+            <div class="pp-hero-banner">
+              <div class="pp-hero-top">Welcome to Purchasing Power</div>
+              <div class="pp-hero-main">
+                <div class="pp-hero-copy">
+                  <div class="pp-hero-sub">Pay over time, right from your paycheck.</div>
+                  <div class="pp-hero-off">20% off<sup>*</sup><br /><span>YOUR FIRST ORDER</span></div>
+                  <div class="pp-hero-code">Promo code: <strong>WELCOME25</strong></div>
+                  <button class="btn hero-shop" data-nav="search">Shop Now</button>
+                  <div class="pp-hero-disclaimer"><small>*Exclusions apply. See Sales & Offers. | Ends 12/03/2025</small></div>
+                </div>
+                <div class="pp-hero-img"><div id="heroImgHost"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="pp-hero-right">
+            <div class="rail-card rail-just">
+              <div class="rail-title">Just Arrived</div>
+              <div class="rail-text">Discover New Arrivals + Pay Over Time</div>
+              <button class="btn secondary rail-btn" data-nav="search">Explore</button>
+            </div>
+            <div class="rail-card rail-best">
+              <div class="rail-title">Best Sellers</div>
+              <div class="rail-text">Shop Clearance + Pay Over Time</div>
+              <button class="btn secondary rail-btn" data-nav="search">Explore</button>
+            </div>
+            <div class="rail-card rail-brands">
+              <div class="rail-title">Top Brands</div>
+              <div class="rail-text">All the brands you love, all in one place.</div>
+              <button class="btn secondary rail-btn" data-nav="search">Explore</button>
+            </div>
+          </aside>
+        </div>
+
+        <div class="util-row">
+          <div class="util-card"><div class="util-title">You have 3 items on your Wishlist.</div></div>
+          <div class="util-card"><div class="util-title">Get 10% off when you sign up for promotional texts.</div></div>
+          <div class="util-card"><div class="util-title">See our featured brands.</div></div>
+        </div>
+
+        <h3 class="shelf-title">Featured Categories</h3>
+        <div id="homeCats" class="cat-grid" aria-hidden="true"></div>
+
+        <h3 class="shelf-title">Featured</h3>
+        <div id="homeGrid" class="grid"></div>
+      </section>
+
+      <!-- SEARCH -->
+      <section id="page-search" class="page hidden">
+        <h2>You searched for <em id="searchQueryEcho"></em></h2>
+        <div class="filter-row">
+          <label><input type="checkbox" id="filterWithinLimit"> Within My Spending Limit</label>
+          <select id="sortSelect">
+            <option value="best">Best Match</option>
+            <option value="low">Price: Low to High</option>
+            <option value="high">Price: High to Low</option>
+          </select>
+        </div>
+        <div id="searchResults" class="grid"></div>
+        <div class="row-actions"><button class="btn secondary" data-nav="home">Back to Home</button></div>
+      </section>
+
+      <!-- PDP -->
+      <section id="page-pdp" class="page hidden">
+        <div id="pdpContent" class="pdp"></div>
+        <div class="row-actions"><button class="btn secondary" data-nav="search">Back to Results</button></div>
+      </section>
+
+      <!-- CART -->
+      <section id="page-cart" class="page hidden">
+        <h2>My Cart</h2>
+        <div class="cart-layout">
+          <div class="cart-main">
+            <div id="cartList" class="cart-list"></div>
+
+            <!-- Eligibility banner (initial: only ask to check) -->
+            <div id="limitBanner" class="banner warn hidden" aria-live="polite">
+              <strong>You are over the spending limit.</strong>
+              <p>Would you like to check your eligibility?</p>
+              <button id="eligibilityBtn" class="btn primary">Check eligibility</button>
+            </div>
+
+            <!-- Promo -->
+            <div id="promoBanner" class="banner info hidden" aria-live="polite">
+              <strong>Promo available:</strong>
+              <p>The product in your cart is eligible for <strong>ELECTRO10</strong> (–$10). Apply now?</p>
+              <button id="applyPromoBtn" class="btn">Apply ELECTRO10</button>
+            </div>
+          </div>
+
+          <aside class="cart-summary">
+            <h4>Order Summary</h4>
+            <div>Subtotal: <span id="summarySubtotal">$0</span></div>
+            <div>Promo: <span id="summaryPromo">$0</span></div>
+            <div class="total">Total: <span id="summaryTotal">$0</span></div>
+            <button id="checkoutBtn" class="btn primary">Start Secure Checkout</button>
+          </aside>
+        </div>
+      </section>
+
+      <!-- CHECKOUT -->
+      <section id="page-checkout" class="page hidden">
+        <div class="stepper">
+          <div id="step1" class="step active">1. Shipping</div>
+          <div id="step2" class="step">2. Payments</div>
+          <div id="step3" class="step">3. Review Order</div>
+          <div id="step4" class="step">4. Upload Documents</div>
+          <div id="step5" class="step">5. Confirmation</div>
+        </div>
+
+        <div id="checkoutStep1" class="checkout-step">
+          <h3>Select a delivery address</h3>
+          <div class="card">
+            <label>Address (pre-selected)
+              <input type="text" value="345 PARK AVENUE | NEW YORK | NY | 10154" disabled />
+            </label>
+            <small class="muted">Address verified from your saved records.</small>
+          </div>
+
+          <div class="card">
+            <h4>Delivery Method</h4>
+            <label><input type="radio" name="ship" checked> Standard — $25.00</label>
+          </div>
+
+          <div class="row-actions">
+            <button class="btn primary" id="toPayment">Continue</button>
+          </div>
+        </div>
+
+        <div id="checkoutStep2" class="checkout-step hidden">
+          <h3>Payments</h3>
+          <div class="card">
+            <label>Payment term (pre-selected)
+              <select disabled><option>6 Months | 6 payments</option></select>
+            </label>
+            <label>Backup Method
+              <select disabled><option>Visa **** 9815</option></select>
+            </label>
+          </div>
+          <div class="row-actions">
+            <button class="btn secondary" id="backToShipping">Back</button>
+            <button class="btn primary" id="toReview">Continue</button>
+          </div>
+        </div>
+
+        <div id="checkoutStep3" class="checkout-step hidden">
+          <h3>Your Cart</h3>
+          <div id="reviewList" class="card"></div>
+          <div class="row-actions">
+            <button class="btn secondary" id="backToPayment">Back</button>
+            <button class="btn primary" id="toDocs">Continue</button>
+          </div>
+        </div>
+
+        <div id="checkoutStep4" class="checkout-step hidden">
+          <h3>Upload Documents</h3>
+          <div class="upload-grid">
+            <div class="upload-cell">
+              <label>Allotment Proof *</label>
+              <input type="file" id="fileAllotment" accept=".png,.jpg,.jpeg,.pdf" />
+              <div id="statusAllotment" class="muted">No file selected.</div>
+            </div>
+            <div class="upload-cell">
+              <label>Paystub *</label>
+              <input type="file" id="filePaystub" accept=".png,.jpg,.jpeg,.pdf" />
+              <div id="statusPaystub" class="muted">No file selected.</div>
+            </div>
+          </div>
+          <div class="row-actions">
+            <button class="btn secondary" id="backToReview">Back</button>
+            <button class="btn" id="mockUploadBtn">Mock Upload</button>
+            <button class="btn primary" id="placeOrderBtn" disabled>Complete Order</button>
+          </div>
+        </div>
+
+        <div id="checkoutStep5" class="checkout-step hidden">
+          <div class="success">
+            <h3>Thanks for your order! <span id="orderId"></span></h3>
+            <p>Your new remaining balance is <strong id="newBalance">$0</strong>.</p>
+            <div id="orderSummary" class="card"></div>
+          </div>
+
+          <div class="row-actions">
+            <button class="btn" id="keepShoppingBtn" data-nav="home">Keep Shopping</button>
+            <button class="btn" id="myAccountBtn">My Account</button>
+            <button class="btn" id="referBtn">Refer & Earn $75</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Eligibility overlay -->
+    <div id="overlay" class="overlay hidden">
+      <div class="loader"></div>
+      <div class="overlay-text">Checking eligibility…</div>
+    </div>
+
+    <footer class="footer"><small>Hackathon demo • Voice-enabled smart shopping assistant</small></footer>
+  </div>
+</body>
+</html>
