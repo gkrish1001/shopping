@@ -135,3 +135,11 @@ body{
   .cat-circle{width:100px;height:100px}
   .cat-initial{font-size:30px}
 }
+#uploadProgressContainer {
+  animation: fadeIn .3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity:0; }
+  to { opacity:1; }
+}
