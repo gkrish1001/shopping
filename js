@@ -551,27 +551,62 @@
     // 9) UPLOAD DOCUMENTS HANDLER (MUST BE LAST so it does not steal cart intents)
     if (stepElems && stepElems.s4 && !stepElems.s4.classList.contains("hidden")) {
       // Upload intent (allow many phrasings)
-      if (/\b(upload document|upload documents|upload file|upload files|mock upload|mock upload documents|mock upload files|upload stub|upload paystub)\b/i.test(cleaned)) {
-        state.documentsUploaded = true;
-        speak("Documents uploaded successfully. Say 'complete order' when you are ready.");
-        return;
-      }
+    if (/\b(upload document|upload documents|upload file|upload files|mock upload|mock upload documents|mock upload files|upload stub|upload paystub)\b/i.test(cleaned)) {
 
-      // Complete order via voice
-      if (/\b(complete order|place order|finish order)\b/i.test(cleaned)) {
-        if (!state.documentsUploaded) {
-          speak("Please upload your documents first. Say 'upload documents' to continue or click Mock Upload.");
-          return;
-        }
-        placeOrder();
-        return;
-      }
+    const box = el("uploadProgressContainer");
+    const bar = el("uploadProgressBar");
 
-      // If user says next during upload step
-      if (/\b(next|continue|go next)\b/i.test(cleaned)) {
-        speak("Please say 'complete order' to finish.");
+    if (box && bar) {
+        box.classList.remove("hidden");
+        bar.style.width = "0%";
+
+        let progress = 0;
+        const timer = setInterval(() => {
+            progress += 10;
+            bar.style.width = progress + "%";
+
+            if (progress >= 100) {
+                clearInterval(timer);
+
+                // Update status text
+                const statusAllotment = el("statusAllotment");
+                const statusPaystub   = el("statusPaystub");
+                if (statusAllotment) statusAllotment.textContent = "Uploaded: allotment.pdf";
+                if (statusPaystub)   statusPaystub.textContent   = "Uploaded: paystub.pdf";
+
+                state.documentsUploaded = true;
+
+                speak("Documents uploaded successfully. Say 'complete order' when you are ready.");
+
+                // Hide progress bar after 1 sec
+                setTimeout(()=> box.classList.add("hidden"), 1000);
+            }
+        }, 200); // 0.2s per step → 2 seconds total
+    }
+    return;
+}
+
+
+
+      // COMPLETE ORDER — independent of NEXT
+if (/\b(complete order|place order|finish order)\b/i.test(cleaned)) {
+    if (!state.documentsUploaded) {
+        speak("Please upload your documents first.");
         return;
-      }
+    }
+    placeOrder();
+    return;
+}
+
+// NEXT — only handles checkout navigation
+if (/\b(next|continue|go next)\b/i.test(cleaned)) {
+    if (!stepElems.s1.classList.contains("hidden")) { setActiveStep(2); speak("Payments selected. Say next."); return; }
+    if (!stepElems.s2.classList.contains("hidden")) { setActiveStep(3); renderReview(); speak("Review your order. Say next."); return; }
+    if (!stepElems.s3.classList.contains("hidden")) { setActiveStep(4); speak("Upload your documents or say 'upload documents'."); return; }
+    speak("Please say 'complete order' to finish.");
+    return;
+}
+
     }
 
     // final fallback if nothing matched
@@ -600,15 +635,24 @@
     if (t.id === "applyPromoBtn") { applyPromo(); return; }
 
     // Mock Upload button — Option A: DO NOT auto-complete order
-    if (t.id === "mockUploadBtn") {
-      state.documentsUploaded = true;
-      speak("Documents uploaded successfully. Say 'complete order' when you are ready.");
-      // optionally update UI file-status text if you want (demo)
-      const statusAllotment = el("statusAllotment"); const statusPaystub = el("statusPaystub");
-      if (statusAllotment) statusAllotment.textContent = "Uploaded: allotment.pdf";
-      if (statusPaystub) statusPaystub.textContent = "Uploaded: paystub.pdf";
-      return;
-    }
+   if (t.id === "mockUploadBtn") {
+    state.documentsUploaded = true;
+
+    // ENABLE COMPLETE ORDER BUTTON
+    const btn = el("placeOrderBtn");
+    if (btn) btn.disabled = false;
+
+    speak("Documents uploaded successfully. Say 'complete order' when you are ready.");
+
+    // Update UI
+    const statusAllotment = el("statusAllotment");
+    const statusPaystub = el("statusPaystub");
+    if (statusAllotment) statusAllotment.textContent = "Uploaded: allotment.pdf";
+    if (statusPaystub)   statusPaystub.textContent = "Uploaded: paystub.pdf";
+
+    return;
+}
+
 
     // Checkout flow UI
     if (t.id === "checkoutBtn") { goCheckout(); return; }
