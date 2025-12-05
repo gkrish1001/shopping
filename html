@@ -225,6 +225,14 @@
 
         <div id="checkoutStep4" class="checkout-step hidden">
           <h3>Upload Documents</h3>
+          <!-- Upload progress bar -->
+<div id="uploadProgressContainer" class="hidden" 
+     style="margin:10px 0; background:#e5e7eb; border-radius:8px; height:12px; overflow:hidden;">
+  <div id="uploadProgressBar" 
+       style="height:100%; width:0%; background:#10b981; transition:width .2s linear;"></div>
+</div>
+
+          
           <div class="upload-grid">
             <div class="upload-cell">
               <label>Allotment Proof *</label>
